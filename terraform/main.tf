@@ -1,8 +1,8 @@
 resource "aws_db_subnet_group" "rds_subnet_group" {
-  name        = "${var.cluster_name}-rds-sng"
+  name        = "liorm-cloudride-rds-sng"
   subnet_ids  = var.db_subnet_ids
   tags = {
-    Name = "${var.cluster_name}-rds-sng"
+    Name = "liorm-cloudride-rds-sng"
   }
 }
 
@@ -23,6 +23,28 @@ module "eks" {
     vpc_id = var.vpc_id
     public_subnet_ids = var.public_subnet_ids
     private_subnet_ids = var.private_subnet_ids
+}
+
+module "rds" {
+  source = "./rds"
+
+  source_db_identifier       = var.source_db_identifier
+  source_snapshot_identifier = var.source_snapshot_identifier
+  new_db_identifier          = var.new_db_identifier
+  new_master_password        = var.new_master_password
+  
+  db_subnet_group_name       = aws_db_subnet_group.rds_subnet_group.name 
+  
+  vpc_security_group_ids     = [var.db_security_group_id] 
+
+  depends_on = [
+    aws_db_subnet_group.rds_subnet_group
+  ]
+}
+
+output "new_rds_endpoint" {
+  value       = module.rds.db_endpoint
+  description = "The endpoint of the newly created, managed RDS instance."
 }
 
 # module "argocd" {
