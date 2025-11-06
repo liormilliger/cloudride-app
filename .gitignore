@@ -1,4 +1,5 @@
 liorm_credentials.csv
 *.zip
 *.pdf
-terraform/
+terraform/argocd/
+terraform/terraform.tfvars
