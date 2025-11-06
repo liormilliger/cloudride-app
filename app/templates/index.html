@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>מה אוכלים ברמת החייל</title>
+  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Assistant', sans-serif;
+      background: {{ '#121212' if is_dark else '#f4f4f4' }};
+      color: {{ '#e0e0e0' if is_dark else '#333' }};
+      margin: 0;
+      direction: rtl;
+      display: flex;
+    }
+
+    aside {
+      width: 250px;
+      background: {{ '#1e1e1e' if is_dark else '#fff' }};
+      padding: 20px;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+    }
+
+    aside h2,
+    label {
+      color: {{ '#e0e0e0' if is_dark else 'inherit' }};
+    }
+
+    main {
+      flex: 1;
+      padding: 20px;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background-color: {{ '#1e1e1e' if is_dark else 'white' }};
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+
+    .card-content {
+      padding: 16px;
+    }
+
+    .card-content h2 {
+      margin: 0 0 8px 0;
+    }
+
+    .card-content p {
+      margin: 4px 0;
+    }
+
+    select, button {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 15px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-family: inherit;
+      background: {{ '#2c2c2c' if is_dark else 'white' }};
+      color: {{ '#e0e0e0' if is_dark else '#000' }};
+    }
+
+    button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<aside>
+  <form method="GET">
+    <h2>סינון</h2>
+
+    <label>סוג מטבח</label>
+    <select name="cuisine">
+      <option value="">הכל</option>
+      <option value="אוכל ביתי" {% if selected_cuisine == 'אוכל ביתי' %}selected{% endif %}>אוכל ביתי</option>
+      <option value="על האש" {% if selected_cuisine == 'על האש' %}selected{% endif %}>על האש</option>
+      <option value="יפני" {% if selected_cuisine == 'יפני' %}selected{% endif %}>יפני</option>
+      <option value="מקסיקני" {% if selected_cuisine == 'מקסיקני' %}selected{% endif %}>מקסיקני</option>
+      <option value="בית קפה" {% if selected_cuisine == 'בית קפה' %}selected{% endif %}>בית קפה</option>
+    </select>
+
+    <label>דירוג מינימלי</label>
+    <select name="rating">
+      <option value="">הכל</option>
+      <option value="4.5" {% if selected_rating == '4.5' %}selected{% endif %}>4.5+</option>
+      <option value="4.0" {% if selected_rating == '4.0' %}selected{% endif %}>4.0+</option>
+      <option value="3.5" {% if selected_rating == '3.5' %}selected{% endif %}>3.5+</option>
+    </select>
+
+    <label>כשרות</label>
+    <select name="kosher">
+      <option value="">הכל</option>
+      <option value="true" {% if selected_kosher == 'true' %}selected{% endif %}>כשר</option>
+      <option value="false" {% if selected_kosher == 'false' %}selected{% endif %}>לא כשר</option>
+    </select>
+
+    <label>סיבוס</label>
+    <select name="cibus">
+      <option value="">הכל</option>
+      <option value="true" {% if selected_cibus == 'true' %}selected{% endif %}>מקבלים</option>
+      <option value="false" {% if selected_cibus == 'false' %}selected{% endif %}>לא מקבלים</option>
+    </select>
+
+    <button type="submit">סנן</button>
+  </form>
+</aside>
+
+<main>
+  <h1>מה אוכלים ברמת החייל</h1>
+  <div class="container">
+    {% for r in restaurants %}
+    <div class="card">
+      <img src="{{ r[5] or 'https://source.unsplash.com/featured/?restaurant' }}" alt="תמונה">
+      <div class="card-content">
+        <h2>{{ r[1] }}</h2>
+        <p><strong>מטבח:</strong> {{ r[2] }}</p>
+        <p><strong>דירוג:</strong> {{ r[3] }}</p>
+        <p><strong>כשרות:</strong> {{ 'כשר' if r[6] else 'לא כשר' }}</p>
+        <p><strong>סיבוס:</strong> {{ 'מקבלים' if r[7] else 'לא מקבלים' }}</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</main>
+
+</body>
+</html>

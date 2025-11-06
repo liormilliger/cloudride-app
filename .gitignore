@@ -1,0 +1,4 @@
+liorm_credentials.csv
+*.zip
+*.pdf
+terraform/
