@@ -23,7 +23,7 @@ terraform {
   backend "s3" {
     bucket = "cloudride-liorm"
     key    = "website-tfstate/terraform.tfstate"
-    region = var.REGION
+    region = "us-west-2"
     dynamodb_table = "terraform-lock-cloudride-liorm"
   }
 }
