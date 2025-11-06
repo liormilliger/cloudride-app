@@ -47,19 +47,34 @@ output "new_rds_endpoint" {
   description = "The endpoint of the newly created, managed RDS instance."
 }
 
-# module "argocd" {
-#   source                 = "./argocd"
-#   config_repo_url         = "git@github.com:<REPO>"
-#   config-repo-secret-name = "config-repo-private-sshkey"
+output "new_db_password" {
+  value = var.new_master_password
+  sensitive = true
+}
 
+resource "local_file" "rds_helm_values" {
+  filename = "argocd-app-of-apps/mywebsite-helm-values.yaml" 
   
-#   providers = {
-#     kubernetes = kubernetes.eks
-#     helm       = helm.eks
-#   }
-  
-#   depends_on = [module.eks]
-# }
+  content = templatefile("${path.module}/helm-values-template.yaml", {
+    rds_endpoint  = module.rds.db_endpoint
+    db_username   = module.rds.db_username
+    db_password   = module.new_db_password 
+    db_name       = "restaurants"
+  })
+}
+
+module "argocd" {
+  source                 = "./argocd"
+  config_repo_url         = "git@github.com:liormilliger/cloudride-k8s.git"
+  config-repo-secret-name = "config-repo-private-sshkey"
+ 
+  providers = {
+    kubernetes = kubernetes.eks
+    helm       = helm.eks
+  }
+
+  depends_on = [module.eks]
+}
 
 
 
