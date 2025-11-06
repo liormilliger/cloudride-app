@@ -13,9 +13,8 @@ module "eks" {
     CredSecret = var.CredSecret
     desired_size = var.desired_size
     vpc_id = var.vpc_id
-    private_subent_ids = var.private_subent_ids
     public_subnet_ids = var.public_subnet_ids
-
+    private_subnet_ids = var.private_subnet_ids
 }
 
 # module "argocd" {
