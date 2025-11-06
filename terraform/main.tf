@@ -1,3 +1,11 @@
+resource "aws_db_subnet_group" "rds_subnet_group" {
+  name        = "${var.cluster_name}-rds-sng"
+  subnet_ids  = var.db_subnet_ids
+  tags = {
+    Name = "${var.cluster_name}-rds-sng"
+  }
+}
+
 module "eks" {
     source = "./eks"
     cluster_name = var.cluster_name
