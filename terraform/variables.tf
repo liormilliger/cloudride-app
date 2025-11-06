@@ -1,3 +1,39 @@
+### GENERAL ###
+
+variable "REGION" {
+  description = "AWS region where the resources will be deployed."
+  type        = string
+}
+
+variable "ACCOUNT" {
+  description = "AWS account ID."
+  type        = string
+}
+
+### VPC ###
+
+variable "vpc_name" {
+  description = "Name of the VPC."
+  type        = string
+}
+
+variable "vpc_id" {
+  description = "ID of the existing VPC."
+  type        = string
+}
+
+variable "private_subnet_ids" {
+  description = "List of existing private subnet IDs for the EKS module."
+  type        = list(string)
+}
+
+variable "public_subnet_ids" {
+  description = "List of existing public subnet IDs for the EKS module."
+  type        = list(string)
+}
+
+### CLUSTER ###
+
 variable "cluster_name" {
   description = "Name of the EKS cluster."
   type        = string
@@ -8,26 +44,7 @@ variable "cluster_version" {
   type        = string
 }
 
-variable "vpc_name" {
-  description = "Name of the VPC."
-  type        = string
-}
-
-variable "vpc_cidr_block" {
-  description = "CIDR block for the VPC"
-  type        = string
-}
-
-variable "private_subnet_cidrs" {
-  description = "CIDR blocks for private subnets"
-  type        = list(string)
-}
-
-variable "public_subnet_cidrs" {
-  description = "CIDR blocks for public subnets"
-  type        = list(string)
-}
-
+### NODE GROUP ###
 variable "node_group_name" {
   description = "Name of the EKS node group."
   type        = string
@@ -58,15 +75,7 @@ variable "node_name" {
   type        = string
 }
 
-variable "REGION" {
-  description = "AWS region where the resources will be deployed."
-  type        = string
-}
-
-variable "ACCOUNT" {
-  description = "AWS account ID."
-  type        = string
-}
+### SECRETS ###
 
 variable "CredSecret" {
   description = "Name of the AWS credentials secret."

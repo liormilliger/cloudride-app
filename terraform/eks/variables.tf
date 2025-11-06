@@ -1,12 +1,4 @@
-variable "cluster_name" {
-  description = "Name of the EKS cluster."
-  type        = string
-}
-
-variable "cluster_version" {
-  description = "Kubernetes version for the EKS cluster."
-  type        = string
-}
+### GENERAL VARS ###
 
 variable "REGION" {
   description = "AWS region where the resources will be deployed."
@@ -18,36 +10,36 @@ variable "ACCOUNT" {
   type        = string
 }
 
-variable "CredSecret" {
-  description = "Name of the AWS credentials secret."
+### NETWORK VARS ###
+
+variable "vpc_id" {
+  description = "ID of the existing VPC."
   type        = string
-}
-
-variable "EbsCredSecret" {
-  description = "Name of the EBS CSI driver secret."
-  type        = string
-}
-
-
-####< NETWORK VARS >####
-locals {
-  private-us-east-1a-id = var.private_subnet_ids[0]
-  private-us-east-1b-id = var.private_subnet_ids[1]
-  public-us-east-1a-id  = var.public_subnet_ids[0]
-  public-us-east-1b-id  = var.public_subnet_ids[1]
 }
 
 variable "private_subnet_ids" {
-  description = "List of private subnet IDs from the VPC module."
+  description = "List of existing private subnet IDs for the EKS module."
   type        = list(string)
 }
 
 variable "public_subnet_ids" {
-  description = "List of public subnet IDs from the VPC module."
+  description = "List of existing public subnet IDs for the EKS module."
   type        = list(string)
 }
 
-####< NODE VARS >####
+### CLUSTER VARS ###
+
+variable "cluster_name" {
+  description = "Name of the EKS cluster."
+  type        = string
+}
+
+variable "cluster_version" {
+  description = "Kubernetes version for the EKS cluster."
+  type        = string
+}
+
+### NODE VARS ###
 
 variable "node_group_name" {
   description = "Name of the EKS node group."
@@ -76,5 +68,17 @@ variable "desired_size" {
 
 variable "node_name" {
   description = "Base name for the EKS nodes."
+  type        = string
+}
+
+### SECRETS VARS ###
+
+variable "CredSecret" {
+  description = "Name of the AWS credentials secret."
+  type        = string
+}
+
+variable "EbsCredSecret" {
+  description = "Name of the EBS CSI driver secret."
   type        = string
 }

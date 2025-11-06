@@ -46,12 +46,7 @@ resource "aws_eks_cluster" "eks-cluster" {
   }
 
   vpc_config {
-    subnet_ids = [
-      local.private-us-east-1a-id,
-      local.private-us-east-1b-id,
-      local.public-us-east-1a-id,
-      local.public-us-east-1b-id
-    ]
+    subnet_ids = concat(var.private_subnet_ids, var.public_subnet_ids)
   }
 
   depends_on = [aws_iam_role_policy_attachment.eks-cluster-policy]

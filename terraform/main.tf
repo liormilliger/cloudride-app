@@ -12,24 +12,25 @@ module "eks" {
     cluster_version = var.cluster_version
     CredSecret = var.CredSecret
     desired_size = var.desired_size
-    private_subnet_ids = module.vpc.private_subnet_ids
-    public_subnet_ids = module.vpc.public_subnet_ids
+    vpc_id = var.vpc_id
+    private_subent_ids = var.private_subent_ids
+    public_subnet_ids = var.public_subnet_ids
 
 }
 
-module "argocd" {
-  source                 = "./argocd"
-  config_repo_url         = "git@github.com:<REPO>"
-  config-repo-secret-name = "config-repo-private-sshkey"
+# module "argocd" {
+#   source                 = "./argocd"
+#   config_repo_url         = "git@github.com:<REPO>"
+#   config-repo-secret-name = "config-repo-private-sshkey"
 
   
-  providers = {
-    kubernetes = kubernetes.eks
-    helm       = helm.eks
-  }
+#   providers = {
+#     kubernetes = kubernetes.eks
+#     helm       = helm.eks
+#   }
   
-  depends_on = [module.eks]
-}
+#   depends_on = [module.eks]
+# }
 
 
 

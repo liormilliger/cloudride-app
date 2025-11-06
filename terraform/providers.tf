@@ -24,6 +24,7 @@ terraform {
     bucket = "cloudride-liorm"
     key    = "website-tfstate/terraform.tfstate"
     region = var.REGION
+    dynamodb_table = "terraform-lock-cloudride-liorm"
   }
 }
 
@@ -68,6 +69,6 @@ provider "kubectl" {
 resource "null_resource" "update_kubeconfig" {
   depends_on = [module.eks]
   provisioner "local-exec" {
-    command = "aws eks --region us-east-1 update-kubeconfig --name ${module.eks.cluster_name}"
+    command = "aws eks --region ${var.REGION} update-kubeconfig --name ${module.eks.cluster_name}"
   }
 }

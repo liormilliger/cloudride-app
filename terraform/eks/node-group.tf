@@ -39,10 +39,7 @@ resource "aws_eks_node_group" "node-group" {
   node_group_name = var.node_group_name
   node_role_arn   = aws_iam_role.liorm-node-group-role.arn
 
-  subnet_ids = [
-    local.public-us-east-1a-id,
-    local.public-us-east-1b-id
-  ]
+  subnet_ids = var.public_subnet_ids
 
   capacity_type  = var.capacity_type
   instance_types = var.instance_types
