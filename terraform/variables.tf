@@ -119,3 +119,8 @@ variable "EbsCredSecret" {
   description = "Name of the EBS CSI driver secret."
   type        = string
 }
+
+variable "argocd-private-key" {
+  description = "Key for argocd to communicate with K8S repo"
+  type = string
+}

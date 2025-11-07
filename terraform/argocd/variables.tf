@@ -3,7 +3,7 @@ variable "config_repo_url" {
   type = string
 }
 
-variable config-repo-secret-name {
+variable argocd-private-key {
   description = "Secret name from aws secret manager"
   type = string
 }

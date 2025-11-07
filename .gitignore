@@ -4,3 +4,4 @@ liorm_credentials.csv
 terraform/terraform.tfvars
 terraform/.terraform/
 terraform/.terraform*
+argocd_key*

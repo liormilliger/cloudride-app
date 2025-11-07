@@ -21,8 +21,8 @@ resource "kubernetes_namespace" "argocd" {
   }
 }
 
-data "aws_secretsmanager_secret_version" "config-repo-private-sshkey" {
-  secret_id = var.config-repo-secret-name
+data "aws_secretsmanager_secret_version" "argocd-private-key" {
+  secret_id = var.argocd-private-key
 }
 
 resource "helm_release" "argocd" {
@@ -40,7 +40,7 @@ resource "helm_release" "argocd" {
             name           = "my-config-repo"
             type           = "git"
             url            = "git@github.com:liormilliger/cloudride-k8s.git"
-            sshPrivateKey = replace(jsondecode(data.aws_secretsmanager_secret_version.config-repo-private-sshkey.secret_string)["config-repo-private-sshkey"], "\\n", "\n")
+            sshPrivateKey = replace(jsondecode(data.aws_secretsmanager_secret_version.argocd-private-key.secret_string)["argocd-private-key"], "\\n", "\n")
           }
         }
       }
