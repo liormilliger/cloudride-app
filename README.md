@@ -20,6 +20,8 @@ To successfully deploy this project, you will need the following:
 * **`kubectl`**: Installed to interact with the EKS cluster after deployment.
 * **`helm`**: Installed (if you need to manually interact with the Helm charts in the K8s repo).
 * **GitHub Personal Access Token (PAT)**: Required by the ArgoCD module to clone and read the application's Kubernetes configuration repository ([https://github.com/liormilliger/cloudride-k8s.git](https://github.com/liormilliger/cloudride-k8s.git)).
+* **Terraform Backend Setup**: Before running Terraform, you must **create an S3 bucket** and a **DynamoDB table** to store the Terraform state and manage state locking.
+* **ECR Repository**: An **Amazon ECR repository** must be created where the CI pipeline will push the built application container image.
 
 ---
 
