@@ -124,3 +124,8 @@ variable "argocd-private-key" {
   description = "Key for argocd to communicate with K8S repo"
   type = string
 }
+
+variable "config_repo_url" {
+  description = "git ssh k8s-repo url"
+  type = string
+}

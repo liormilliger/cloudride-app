@@ -32,9 +32,7 @@ module "rds" {
   source_snapshot_identifier = var.source_snapshot_identifier
   new_db_identifier          = var.new_db_identifier
   new_master_password        = var.new_master_password
-  
   db_subnet_group_name       = aws_db_subnet_group.rds_subnet_group.name 
-  
   vpc_security_group_ids     = [var.db_security_group_id] 
 
   depends_on = [
@@ -48,7 +46,7 @@ output "new_rds_endpoint" {
 }
 
 resource "local_file" "rds_helm_values" {
-  filename = "argocd-app-of-apps/mywebsite-helm-values.yaml" 
+  filename = "argocd/mywebsite-helm-values.yaml" 
   
   content = templatefile("${path.module}/helm-values-template.yaml", {
     rds_endpoint  = module.rds.db_endpoint
@@ -60,7 +58,7 @@ resource "local_file" "rds_helm_values" {
 
 module "argocd" {
   source                 = "./argocd"
-  config_repo_url         = "git@github.com:liormilliger/cloudride-k8s.git"
+  config_repo_url         = var.config_repo_url
   argocd-private-key = var.argocd-private-key
  
   providers = {

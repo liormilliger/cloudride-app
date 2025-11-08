@@ -39,7 +39,7 @@ resource "helm_release" "argocd" {
           my-config-repo = {
             name           = "my-config-repo"
             type           = "git"
-            url            = "git@github.com:liormilliger/cloudride-k8s.git"
+            url            = var.config_repo_url
             sshPrivateKey = replace(jsondecode(data.aws_secretsmanager_secret_version.argocd-private-key.secret_string)["argocd-private-key"], "\\n", "\n")
           }
         }
@@ -67,7 +67,7 @@ resource "kubernetes_manifest" "app_of_apps" {
     spec = {
       project = "default"
       source = {
-        repoURL        = var.config_repo_url 
+        repoURL        = var.config_repo_url
         path           = "argocd-apps"
         targetRevision = "main"
       }
