@@ -101,3 +101,11 @@ The project is set up with a GitOps-based Continuous Integration/Continuous Depl
     * It automatically pulls the updated configuration and deploys the **new image** version to the EKS cluster, completing the Continuous Delivery (CD) process.
 
 This process ensures that the infrastructure remains separate from the application configuration, and all deployments are managed declaratively via Git.
+
+---
+
+## 🏛️ Architecture
+
+Below is a visual representation of the deployed infrastructure and its components.
+
+![CloudRide Architecture](Architecture.png)
