@@ -99,7 +99,7 @@ jobs:
       - name: Update values.yaml with new image tag
         run: |
           NEW_TAG=${{ github.run_number }}
-          VALUES_FILE="${{ env.K8S_REPO_PATH }}/values.yaml"
+          VALUES_FILE="${{ env.K8S_REPO_PATH }}/my-app-chart/values.yaml"
           
           # Use sed to find the 'tag:' line and replace the value with the new run number.
           # This handles spaces before the 'tag' key.
@@ -124,4 +124,3 @@ jobs:
           else
             echo "values.yaml already contains tag ${{ github.run_number }}. No commit necessary."
           fi
-          
