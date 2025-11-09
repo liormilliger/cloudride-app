@@ -46,16 +46,16 @@ module "eks" {
 #   description = "The endpoint of the newly created, managed RDS instance."
 # }
 
-# resource "local_file" "rds_helm_values" {
-#   filename = "argocd/mywebsite-helm-values.yaml" 
+resource "local_file" "rds_helm_values" {
+  filename = "argocd/mywebsite-helm-values.yaml" 
   
-#   content = templatefile("${path.module}/helm-values-template.yaml", {
-#     rds_endpoint  = module.rds.db_endpoint
-#     db_username   = module.rds.db_username
-#     db_password   = var.new_master_password 
-#     db_name       = "restaurants"
-#   })
-# }
+  content = templatefile("${path.module}/helm-values-template.yaml", {
+    rds_endpoint  = module.eks.db_host
+    db_username   = module.eks.db_username
+    db_password   = module.eks.db_password 
+    db_name       = module.eks.db_name
+  })
+}
 
 module "argocd" {
   source                 = "./argocd"
@@ -67,7 +67,10 @@ module "argocd" {
     helm       = helm.eks
   }
 
-  depends_on = [module.eks]
+  depends_on = [
+    module.eks,
+    local_file.rds_helm_values
+  ]
 }
 
 
