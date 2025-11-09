@@ -118,7 +118,7 @@ jobs:
           
           # Check if there are changes to commit (prevents failure if no change was made)
           if ! git diff --exit-code; then
-            git add values.yaml
+            git add my-app-chart/values.yaml
             git commit -m "Deployment: Update application image tag to ${{ github.run_number }}"
             git push
           else
