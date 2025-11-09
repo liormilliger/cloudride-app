@@ -50,10 +50,10 @@ resource "local_file" "rds_helm_values" {
   filename = "argocd/mywebsite-helm-values.yaml" 
   
   content = templatefile("${path.module}/helm-values-template.yaml", {
-    rds_endpoint  = module.eks.db_host
+    rds_endpoint  = "cloudride-legacy-db.c0kc8dxradrc.us-west-2.rds.amazonaws.com"
+    db_name       = "restaurants"
     db_username   = module.eks.db_username
     db_password   = module.eks.db_password 
-    db_name       = module.eks.db_name
   })
 }
 

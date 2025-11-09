@@ -2,18 +2,20 @@ import psycopg2
 import os
 
 def get_db_connection():
-    db_url = os.environ.get("DB_ENDPOINT")
-    db_password = os.environ.get("DB_PASSWORD")
-    db_user = os.environ.get("DB_USER")
-    db_port = os.environ.get("DB_PORT", "5432")
-    db_name = os.environ.get("DB_NAME")
     return psycopg2.connect(
-        host=db_url,
-        database=db_name,
-        user=db_user,
-        password=db_password,
-        port=db_port
+        host=os.environ.get("DB_HOST"),
+        database=os.environ.get("DB_NAME"),
+        user=os.environ.get("DB_USER"),
+        password=os.environ.get("DB_PASSWORD"),
+        port="5432"
     )
+    # return psycopg2.connect(
+    #     host=db_url,
+    #     database=db_name,
+    #     user=db_user,
+    #     password=db_password,
+    #     port=db_port
+    # )
 
 
 def fetch_restaurants(conn, cuisine=None, rating=None, kosher=None, cibus=None):

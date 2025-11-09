@@ -24,10 +24,6 @@ output "oidc_provider_url" {
 }
 
 # --- RDS Credentials Outputs ---
-output "db_host" {
-  description = "The database endpoint hostname."
-  value = local.rds_secret_json.host
-}
 
 output "db_username" {
   description = "The database master username."
@@ -40,7 +36,3 @@ output "db_password" {
   sensitive = true
 }
 
-output "db_name" {
-  description = "The default database name."
-  value = local.rds_secret_json.dbname
-}

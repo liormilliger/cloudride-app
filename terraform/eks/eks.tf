@@ -111,3 +111,20 @@ POLICY
     provisioned_by = "Terraform"
   }
 }
+
+# Add this data source to fetch the EKS cluster details
+data "aws_eks_cluster" "cluster" {
+  name = aws_eks_cluster.eks-cluster.name
+}
+
+# Add this data source to fetch the Kubernetes authentication token
+data "aws_eks_cluster_auth" "cluster" {
+  name = aws_eks_cluster.eks-cluster.name
+}
+
+# Configure the Kubernetes provider
+provider "kubernetes" {
+  host                   = data.aws_eks_cluster.cluster.endpoint
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
+  token                  = data.aws_eks_cluster_auth.cluster.token
+}
