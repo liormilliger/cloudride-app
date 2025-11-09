@@ -2,11 +2,11 @@ import psycopg2
 import os
 
 def get_db_connection():
-    db_url = os.environ.get("DB_ENDPOINT", "pgdb")
-    db_password = os.environ.get("DB_PASSWORD", "example")
-    db_user = os.environ.get("DB_USER", "postgres")
+    db_url = os.environ.get("DB_ENDPOINT")
+    db_password = os.environ.get("DB_PASSWORD")
+    db_user = os.environ.get("DB_USER")
     db_port = os.environ.get("DB_PORT", "5432")
-    db_name = os.environ.get("DB_NAME", "restaurants")
+    db_name = os.environ.get("DB_NAME")
     return psycopg2.connect(
         host=db_url,
         database=db_name,

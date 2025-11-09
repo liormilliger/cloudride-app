@@ -15,6 +15,13 @@ terraform {
   }
 }
 
+# provider "kubernetes" {
+#   config_path = "~/.kube/config" 
+#   # host = data.aws_eks_cluster.example.endpoint 
+#   # token = data.aws_eks_cluster_auth.example.token 
+#   # cluster_ca_certificate = base64decode(data.aws_eks_cluster.example.certificate_authority[0].data)
+#   }
+
 resource "kubernetes_namespace" "argocd" {
   metadata {
     name = "argocd"
@@ -50,7 +57,7 @@ resource "helm_release" "argocd" {
 
 resource "time_sleep" "wait_for_crd_registration" {
   create_duration = "30s"
-  depends_on      = [helm_release.argocd]
+  depends_on      = [ helm_release.argocd ]
 }
 
 resource "kubernetes_manifest" "app_of_apps" {

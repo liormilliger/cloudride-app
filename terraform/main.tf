@@ -1,10 +1,10 @@
-resource "aws_db_subnet_group" "rds_subnet_group" {
-  name        = "liorm-cloudride-rds-sng"
-  subnet_ids  = var.db_subnet_ids
-  tags = {
-    Name = "liorm-cloudride-rds-sng"
-  }
-}
+# resource "aws_db_subnet_group" "rds_subnet_group" {
+#   name        = "liorm-cloudride-rds-sng"
+#   subnet_ids  = var.db_subnet_ids
+#   tags = {
+#     Name = "liorm-cloudride-rds-sng"
+#   }
+# }
 
 module "eks" {
     source = "./eks"
@@ -23,38 +23,39 @@ module "eks" {
     vpc_id = var.vpc_id
     public_subnet_ids = var.public_subnet_ids
     private_subnet_ids = var.private_subnet_ids
+    RDS_SECRET_NAME = var.RDS_SECRET_NAME
 }
 
-module "rds" {
-  source = "./rds"
+# module "rds" {
+#   source = "./rds"
 
-  source_db_identifier       = var.source_db_identifier
-  source_snapshot_identifier = var.source_snapshot_identifier
-  new_db_identifier          = var.new_db_identifier
-  new_master_password        = var.new_master_password
-  db_subnet_group_name       = aws_db_subnet_group.rds_subnet_group.name 
-  vpc_security_group_ids     = [var.db_security_group_id] 
+#   source_db_identifier       = var.source_db_identifier
+#   source_snapshot_identifier = var.source_snapshot_identifier
+#   new_db_identifier          = var.new_db_identifier
+#   new_master_password        = var.new_master_password
+#   db_subnet_group_name       = aws_db_subnet_group.rds_subnet_group.name 
+#   vpc_security_group_ids     = [var.db_security_group_id] 
 
-  depends_on = [
-    aws_db_subnet_group.rds_subnet_group
-  ]
-}
+#   depends_on = [
+#     aws_db_subnet_group.rds_subnet_group
+#   ]
+# }
 
-output "new_rds_endpoint" {
-  value       = module.rds.db_endpoint
-  description = "The endpoint of the newly created, managed RDS instance."
-}
+# output "new_rds_endpoint" {
+#   value       = module.rds.db_endpoint
+#   description = "The endpoint of the newly created, managed RDS instance."
+# }
 
-resource "local_file" "rds_helm_values" {
-  filename = "argocd/mywebsite-helm-values.yaml" 
+# resource "local_file" "rds_helm_values" {
+#   filename = "argocd/mywebsite-helm-values.yaml" 
   
-  content = templatefile("${path.module}/helm-values-template.yaml", {
-    rds_endpoint  = module.rds.db_endpoint
-    db_username   = module.rds.db_username
-    db_password   = var.new_master_password 
-    db_name       = "restaurants"
-  })
-}
+#   content = templatefile("${path.module}/helm-values-template.yaml", {
+#     rds_endpoint  = module.rds.db_endpoint
+#     db_username   = module.rds.db_username
+#     db_password   = var.new_master_password 
+#     db_name       = "restaurants"
+#   })
+# }
 
 module "argocd" {
   source                 = "./argocd"
