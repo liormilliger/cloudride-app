@@ -2,21 +2,30 @@ import psycopg2
 import os
 
 def get_db_connection():
-    return psycopg2.connect(
-        host=os.environ.get("DB_HOST"),
-        database=os.environ.get("DB_NAME"),
-        user=os.environ.get("DB_USER"),
-        password=os.environ.get("DB_PASSWORD"),
-        port="5432"
-    )
-    # return psycopg2.connect(
-    #     host=db_url,
-    #     database=db_name,
-    #     user=db_user,
-    #     password=db_password,
-    #     port=db_port
-    # )
+    # Retrieve connection details from environment variables
+    # These must be set in your Kubernetes Deployment (Step 3)
+    DB_HOST = os.environ.get('DB_HOST') 
+    DB_NAME = os.environ.get('DB_NAME')
+    DB_USER = os.environ.get('DB_USER')
+    DB_PASS = os.environ.get('DB_PASS') 
 
+    if not all([DB_HOST, DB_NAME, DB_USER, DB_PASS]):
+        raise EnvironmentError("Missing required database environment variables (DB_HOST, DB_NAME, DB_USER, DB_PASS).")
+
+    try:
+        # Crucial: Explicitly pass the hostname (DB_HOST) for network connection
+        conn = psycopg2.connect(
+            host=DB_HOST,
+            database=DB_NAME,
+            user=DB_USER,
+            password=DB_PASS,
+            port='5432' # Default port
+        )
+        return conn
+    except psycopg2.OperationalError as e:
+        # Print the error for debugging, then re-raise
+        print(f"Database connection failed: {e}")
+        raise
 
 def fetch_restaurants(conn, cuisine=None, rating=None, kosher=None, cibus=None):
     query = "SELECT id, name, cuisine, rating, location, photo_url, kosher, accepts_cibus FROM restaurants WHERE location = 'רמת החייל'"
