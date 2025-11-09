@@ -7,10 +7,10 @@ def get_db_connection():
     DB_HOST = os.environ.get('DB_HOST') 
     DB_NAME = os.environ.get('DB_NAME')
     DB_USER = os.environ.get('DB_USER')
-    DB_PASS = os.environ.get('DB_PASS') 
+    DB_PASSWORD = os.environ.get('DB_PASSWORD') 
 
-    if not all([DB_HOST, DB_NAME, DB_USER, DB_PASS]):
-        raise EnvironmentError("Missing required database environment variables (DB_HOST, DB_NAME, DB_USER, DB_PASS).")
+    if not all([DB_HOST, DB_NAME, DB_USER, DB_PASSWORD]):
+        raise EnvironmentError("Missing required database environment variables (DB_HOST, DB_NAME, DB_USER, DB_PASSWORD).")
 
     try:
         # Crucial: Explicitly pass the hostname (DB_HOST) for network connection
@@ -18,7 +18,7 @@ def get_db_connection():
             host=DB_HOST,
             database=DB_NAME,
             user=DB_USER,
-            password=DB_PASS,
+            password=DB_PASSWORD,
             port='5432' # Default port
         )
         return conn
