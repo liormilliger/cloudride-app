@@ -92,7 +92,7 @@ jobs:
         with:
           repository: ${{ env.K8S_REPO }}
           # IMPORTANT: Must use a PAT with 'repo' scope to push to an external repository
-          token: ${{ secrets.K8S_DEPLOYMENT_TOKEN }}
+          token: ${{ secrets.K8S_REPO_TOKEN }}
           path: ${{ env.K8S_REPO_PATH }}
           ref: main # Target branch for the K8s repo
 
