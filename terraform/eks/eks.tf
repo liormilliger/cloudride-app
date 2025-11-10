@@ -69,15 +69,16 @@ data "tls_certificate" "eks_cluster_cert" {
   url = aws_eks_cluster.eks-cluster.identity[0].oidc[0].issuer
 }
 
+# -----------------------------------------------------------------------------
+# ALB Controller IAM Role (For IRSA)
+# -----------------------------------------------------------------------------
+
 resource "aws_iam_policy" "alb_controller_policy" {
   name        = "${var.cluster_name}-alb-controller-policy"
   description = "Permissions for AWS Load Balancer Controller"
   policy      = file("${path.module}/policies/iam-policy.json")
 }
 
-# -----------------------------------------------------------------------------
-# ALB Controller IAM Role (For IRSA)
-# -----------------------------------------------------------------------------
 resource "aws_iam_role" "alb_controller_iam_role" {
   name = "${var.cluster_name}-alb-controller-role" 
   
@@ -109,17 +110,14 @@ resource "aws_iam_role_policy_attachment" "alb_controller_policy_attach" {
   policy_arn = aws_iam_policy.alb_controller_policy.arn
 }
 
-# Add this data source to fetch the EKS cluster details
 data "aws_eks_cluster" "cluster" {
   name = aws_eks_cluster.eks-cluster.name
 }
 
-# Add this data source to fetch the Kubernetes authentication token
 data "aws_eks_cluster_auth" "cluster" {
   name = aws_eks_cluster.eks-cluster.name
 }
 
-# Configure the Kubernetes provider
 provider "kubernetes" {
   host                   = data.aws_eks_cluster.cluster.endpoint
   cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
@@ -132,3 +130,53 @@ resource "null_resource" "update_kubeconfig" {
     command = "aws eks --region us-west-2 update-kubeconfig --name ${aws_eks_cluster.eks-cluster.name}"
   }
 }
+
+# -----------------------------------------------------------------------------
+# ESO IAM Role (For IRSA)
+# -----------------------------------------------------------------------------
+
+resource "aws_iam_policy" "eso_secrets_policy" {
+  name        = "${var.cluster_name}-eso-secrets-policy"
+  description = "Permissions for External Secrets Operator to read RDS credentials"
+  policy      = templatefile("${path.module}/policies/eso-secrets-policy.json", {
+    account_id   = var.ACCOUNT
+    secret_name  = var.RDS_SECRET_NAME
+    region = var.REGION
+  })
+}
+
+resource "aws_iam_role" "eso_iam_role" {
+  name = "${var.cluster_name}-eso-role"
+  
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          Federated = aws_iam_openid_connect_provider.eks_oidc_provider.arn
+        },
+        Action = "sts:AssumeRoleWithWebIdentity",
+        Condition = {
+          StringEquals = {
+            "${replace(aws_iam_openid_connect_provider.eks_oidc_provider.url, "https://", "")}:sub" = "system:serviceaccount:external-secrets:external-secrets"
+          }
+        }
+      }
+    ]
+  })
+
+  tags = {
+    provisioned_by = "Terraform"
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "eso_policy_attach" {
+  role       = aws_iam_role.eso_iam_role.name
+  policy_arn = aws_iam_policy.eso_secrets_policy.arn
+}
+
+output "eso_irsa_role_arn" {
+  value = aws_iam_role.eso_iam_role.arn
+}
+

@@ -55,26 +55,26 @@ resource "helm_release" "argocd" {
   ]
 }
 
-# -----------------------------------------------------------------------------
-# RDS Secrets Manager Data Sources (New Blocks)
-# -----------------------------------------------------------------------------
+# # -----------------------------------------------------------------------------
+# # RDS Secrets Manager Data Sources (New Blocks)
+# # -----------------------------------------------------------------------------
 
-# 1. Get the secret metadata using the variable (which you must define in the module)
-data "aws_secretsmanager_secret" "rds_credentials_meta" {
-  # The secret name is passed in via a variable from the root module
-  name = var.RDS_SECRET_NAME 
-}
+# # 1. Get the secret metadata using the variable (which you must define in the module)
+# data "aws_secretsmanager_secret" "rds_credentials_meta" {
+#   # The secret name is passed in via a variable from the root module
+#   name = var.RDS_SECRET_NAME 
+# }
 
-# 2. Get the actual secret string
-data "aws_secretsmanager_secret_version" "rds_credentials" {
-  secret_id = data.aws_secretsmanager_secret.rds_credentials_meta.id
-}
+# # 2. Get the actual secret string
+# data "aws_secretsmanager_secret_version" "rds_credentials" {
+#   secret_id = data.aws_secretsmanager_secret.rds_credentials_meta.id
+# }
 
-# Inside ./eks/node-group.tf (or a dedicated locals.tf in the EKS module)
-locals {
-  # Parse the JSON string retrieved from Secrets Manager
-  rds_secret_json = jsondecode(data.aws_secretsmanager_secret_version.rds_credentials.secret_string)
-}
+# # Inside ./eks/node-group.tf (or a dedicated locals.tf in the EKS module)
+# locals {
+#   # Parse the JSON string retrieved from Secrets Manager
+#   rds_secret_json = jsondecode(data.aws_secretsmanager_secret_version.rds_credentials.secret_string)
+# }
 
 resource "time_sleep" "wait_for_crd_registration" {
   create_duration = "30s"

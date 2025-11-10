@@ -23,6 +23,8 @@ module "eks" {
     vpc_id = var.vpc_id
     public_subnet_ids = var.public_subnet_ids
     private_subnet_ids = var.private_subnet_ids
+    RDS_SECRET_NAME = var.RDS_SECRET_NAME
+
 }
 
 # module "rds" {
@@ -60,8 +62,8 @@ module "argocd" {
   source                 = "./argocd"
   config_repo_url         = var.config_repo_url
   argocd-private-key = var.argocd-private-key
-  RDS_SECRET_NAME = var.RDS_SECRET_NAME
-
+  # RDS_SECRET_NAME = var.RDS_SECRET_NAME
+  eso_irsa_role_arn = module.eks.eso_irsa_role_arn 
   providers = {
     kubernetes = kubernetes.eks
     helm       = helm.eks
