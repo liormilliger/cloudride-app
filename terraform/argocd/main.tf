@@ -98,18 +98,6 @@ resource "kubernetes_manifest" "app_of_apps" {
         repoURL        = var.config_repo_url
         path           = "argocd-apps"
         targetRevision = "main"
-        helm = {
-          parameters = [
-            {
-              name  = "rds.username"
-              value = local.rds_secret_json.username
-            },
-            {
-              name  = "rds.password"
-              value = local.rds_secret_json.password
-            },
-          ]
-        }
       }
       destination = {
         server    = "https://kubernetes.default.svc"
@@ -128,3 +116,4 @@ resource "kubernetes_manifest" "app_of_apps" {
     time_sleep.wait_for_crd_registration
   ]
 }
+
