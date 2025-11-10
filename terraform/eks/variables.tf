@@ -82,8 +82,3 @@ variable "EbsCredSecret" {
   description = "Name of the EBS CSI driver secret."
   type        = string
 }
-
-variable "RDS_SECRET_NAME" {
-  description = "credentials for RDS"
-  type = string
-}

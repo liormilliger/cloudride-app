@@ -23,16 +23,16 @@ output "oidc_provider_url" {
   value       = aws_iam_openid_connect_provider.eks_oidc_provider.url
 }
 
-# --- RDS Credentials Outputs ---
+# # --- RDS Credentials Outputs ---
 
-output "db_username" {
-  description = "The database master username."
-  value = local.rds_secret_json.username
-}
+# output "db_username" {
+#   description = "The database master username."
+#   value = local.rds_secret_json.username
+# }
 
-output "db_password" {
-  description = "The database master password."
-  value = local.rds_secret_json.password
-  sensitive = true
-}
+# output "db_password" {
+#   description = "The database master password."
+#   value = local.rds_secret_json.password
+#   sensitive = true
+# }
 

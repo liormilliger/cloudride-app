@@ -23,7 +23,6 @@ module "eks" {
     vpc_id = var.vpc_id
     public_subnet_ids = var.public_subnet_ids
     private_subnet_ids = var.private_subnet_ids
-    RDS_SECRET_NAME = var.RDS_SECRET_NAME
 }
 
 # module "rds" {
@@ -46,30 +45,30 @@ module "eks" {
 #   description = "The endpoint of the newly created, managed RDS instance."
 # }
 
-resource "local_file" "rds_helm_values" {
-  filename = "argocd/mywebsite-helm-values.yaml" 
+# resource "local_file" "rds_helm_values" {
+#   filename = "argocd/mywebsite-helm-values.yaml" 
   
-  content = templatefile("${path.module}/helm-values-template.yaml", {
-    rds_endpoint  = "cloudride-legacy-db.c0kc8dxradrc.us-west-2.rds.amazonaws.com"
-    db_name       = "restaurants"
-    db_username   = module.eks.db_username
-    db_password   = module.eks.db_password 
-  })
-}
+#   content = templatefile("${path.module}/helm-values-template.yaml", {
+#     rds_endpoint  = "cloudride-legacy-db.c0kc8dxradrc.us-west-2.rds.amazonaws.com"
+#     db_name       = "restaurants"
+#     db_username   = module.eks.db_username
+#     db_password   = module.eks.db_password 
+#   })
+# }
 
 module "argocd" {
   source                 = "./argocd"
   config_repo_url         = var.config_repo_url
   argocd-private-key = var.argocd-private-key
- 
+  RDS_SECRET_NAME = var.RDS_SECRET_NAME
+
   providers = {
     kubernetes = kubernetes.eks
     helm       = helm.eks
   }
 
   depends_on = [
-    module.eks,
-    local_file.rds_helm_values
+    module.eks
   ]
 }
 
