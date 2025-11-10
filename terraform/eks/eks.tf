@@ -82,22 +82,22 @@ resource "aws_iam_role" "alb_controller_iam_role" {
   name = "${var.cluster_name}-alb-controller-role" 
   
   assume_role_policy = jsonencode({
-  Version = "2012-10-17",
-  Statement = [
-    {
-      Effect = "Allow",
-      Principal = {
-        Federated = aws_iam_openid_connect_provider.eks_oidc_provider.arn
-      },
-      Action = "sts:AssumeRoleWithWebIdentity",
-      Condition = {
-        StringEquals = {
-          "${replace(aws_iam_openid_connect_provider.eks_oidc_provider.url, "https://", "")}:sub" = "system:serviceaccount:kube-system:aws-load-balancer-controller"
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          Federated = aws_iam_openid_connect_provider.eks_oidc_provider.arn
+        },
+        Action = "sts:AssumeRoleWithWebIdentity",
+        Condition = {
+          StringEquals = {
+            "${replace(aws_iam_openid_connect_provider.eks_oidc_provider.url, "https://", "")}:sub" = "system:serviceaccount:kube-system:aws-load-balancer-controller"
+          }
         }
       }
-    }
-  ]
-})
+    ]
+  })
 
   tags = {
     provisioned_by = "Terraform"
@@ -124,4 +124,11 @@ provider "kubernetes" {
   host                   = data.aws_eks_cluster.cluster.endpoint
   cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
   token                  = data.aws_eks_cluster_auth.cluster.token
+}
+
+resource "null_resource" "update_kubeconfig" {
+  depends_on = [ aws_eks_cluster.eks-cluster ]
+  provisioner "local-exec" {
+    command = "aws eks --region us-west-2 update-kubeconfig --name ${aws_eks_cluster.eks-cluster.name}"
+  }
 }
