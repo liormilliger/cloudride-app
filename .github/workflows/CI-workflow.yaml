@@ -17,7 +17,6 @@ env:
 jobs:
   build_and_scan:
     runs-on: ubuntu-latest
-    # This output is no longer used by downstream jobs, but we keep it for reference
     outputs:
       image_uri: ${{ steps.image_info.outputs.full_image_uri }}:${{ github.run_number }}
     steps:
@@ -45,8 +44,6 @@ jobs:
           name: trivy-sarif
           path: trivy-results.sarif
 
-  # --- The 'publish_scan_results' job has been removed as requested. ---
-
   push_to_ecr:
     runs-on: ubuntu-latest
     needs: build_and_scan
@@ -67,7 +64,6 @@ jobs:
           ECR_REGISTRY_HOST=${{ secrets.ACCOUNT_ID }}.dkr.ecr.${{ env.ECR_REGION }}.amazonaws.com
           FULL_IMAGE_URI=$ECR_REGISTRY_HOST/${{ env.ECR_REPOSITORY_NAME }}
           echo "full_image_uri=$FULL_IMAGE_URI" >> $GITHUB_OUTPUT
-      # NOTE: Rebuilds the image as artifacts from 'build_and_scan' are not shared by default.
       - name: Build Docker Image for Push
         run: docker build -t ${{ steps.image_info.outputs.full_image_uri }}:push-temp ./app
       - name: Tag Images
@@ -83,18 +79,18 @@ jobs:
 
   update_k8s_manifest:
     runs-on: ubuntu-latest
-    needs: push_to_ecr # Wait for the image push to complete
+    needs: push_to_ecr 
     permissions:
-      contents: write # Required for pushing changes to the K8s repository
+      contents: write 
     steps:
       - name: Checkout K8s Manifest Repository
         uses: actions/checkout@v4
         with:
           repository: ${{ env.K8S_REPO }}
-          # IMPORTANT: Must use a PAT with 'repo' scope to push to an external repository
+
           token: ${{ secrets.K8S_REPO_TOKEN }}
           path: ${{ env.K8S_REPO_PATH }}
-          ref: main # Target branch for the K8s repo
+          ref: main 
 
       - name: Update values.yaml with new image tag
         run: |
