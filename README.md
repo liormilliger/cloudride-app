@@ -23,6 +23,30 @@ To successfully deploy this project, you will need the following:
 * **Terraform Backend Setup**: Before running Terraform, you must **create an S3 bucket** and a **DynamoDB table** to store the Terraform state and manage state locking.
 * **ECR Repository**: An **Amazon ECR repository** must be created where the CI pipeline will push the built application container image.
 
+> **IMPORTANT!! Manual Certificate Setup for ALB**
+> Before deploying the final Ingress, you must create and import a self-signed certificate into AWS Certificate Manager (ACM), and then update the application's Ingress configuration.
+>
+> 1.  **Clone the K8s repository and generate the certificate:**
+>     ```bash
+>     git clone [https://github.com/liormilliger/cloudride-k8s.git](https://github.com/liormilliger/cloudride-k8s.git)
+>     cd cloudride-k8s/certs/
+>     openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+>       -keyout mycert.key -out mycert.crt \
+>       -subj "/CN=my-alb.example.com"
+>     ```
+>
+> 2.  **Import the certificate into AWS ACM:**
+>     ```bash
+>     aws acm import-certificate \
+>       --certificate fileb://mycert.crt \
+>       --private-key fileb://mycert.key
+>     ```
+>
+> 3.  **Patch the Ingress:** The command output will provide an **ARN**. You must patch this ARN into the `webapp-ingress.yaml` file (located in `my-app-chart/templates` within the K8s repo) using the following annotation:
+>     ```yaml
+>     alb.ingress.kubernetes.io/certificate-arn: <imported-certificate-arn>
+>     ```
+
 ---
 
 ## 🚀 How to Operate (Terraform Deployment)
@@ -35,13 +59,13 @@ This stage provisions the core infrastructure, including the EKS cluster, its wo
 
 **What is deployed:**
 
-* **RDS Module**: Takes a snapshot of an existing RDS instance (for safety/backup) and deploys a **new RDS instance** for the application's use. It outputs the new RDS endpoint.
+* **RDS Module**: This module is currently **hashed and not operative**, but is included here as an option for use. What it does is take a snapshot of an existing RDS instance (for safety/backup) and deploys a **new RDS instance** for the application's use. It outputs the new RDS endpoint.
 * **EKS Module**: Provisions the EKS cluster. Key configurations seen in the IaC include:
-    * [cite_start]**EKS Cluster Name**: Defined by the `var.cluster_name`[cite: 13].
-    * [cite_start]**Worker Node Security Group (`eks_node_sg`)**: Allows ingress from the **cluster's own VPC CIDR block** on ports **80 (HTTP)** and **443 (HTTPS)** for internal traffic[cite: 3].
-    * [cite_start]**Worker Node IAM Role**: Attached policies include `AmazonEKSWorkerNodePolicy`, `AmazonEKS_CNI_Policy`, and `AmazonEC2ContainerRegistryReadOnly`[cite: 8].
-    * [cite_start]**AWS EBS CSI Driver**: Installed as an EKS Add-on for storage management[cite: 6].
-    * [cite_start]**Core Add-ons**: `kube-proxy`, `coredns`, and `vpc-cni` are installed[cite: 6].
+    * **EKS Cluster Name**: Defined by the `var.cluster_name`.
+    * **Worker Node Security Group (`eks_node_sg`)**: Allows ingress from the **cluster's own VPC CIDR block** on ports **80 (HTTP)** and **443 (HTTPS)** for internal traffic.
+    * **Worker Node IAM Role**: Attached policies include `AmazonEKSWorkerNodePolicy`, `AmazonEKS_CNI_Policy`, and `AmazonEC2ContainerRegistryReadOnly`.
+    * **AWS EBS CSI Driver**: Installed as an EKS Add-on for storage management.
+    * **Core Add-ons**: `kube-proxy`, `coredns`, and `vpc-cni` are installed.
 
 **Execution Steps:**
 
@@ -101,6 +125,49 @@ The project is set up with a GitOps-based Continuous Integration/Continuous Depl
     * It automatically pulls the updated configuration and deploys the **new image** version to the EKS cluster, completing the Continuous Delivery (CD) process.
 
 This process ensures that the infrastructure remains separate from the application configuration, and all deployments are managed declaratively via Git.
+
+---
+
+## 🗑️ Destroying the Cluster (Clean-up)
+
+Destroying the EKS cluster requires a specific preparatory step to avoid resource leaks and timeouts caused by ArgoCD's finalizers. ArgoCD places finalizers on its deployed applications to ensure it cleans up managed resources before the application resource itself is removed. However, when the cluster is being destroyed by Terraform, these finalizers will cause the deletion to stall.
+
+To perform a clean tear-down, you must run the provided script concurrently with the Terraform destroy process.
+
+### 1. Execute Terraform Destroy (Plan and Start)
+
+Start the Terraform destroy process. Once it completes the **plan** and begins destroying the ArgoCD resources, you must run the finalizer patch script.
+
+1.  Navigate to the Terraform directory:
+    ```bash
+    cd terraform/
+    ```
+2.  Initiate the destroy process:
+    ```bash
+    terraform destroy
+    ```
+3.  **WAIT** for the command line output to confirm the destruction plan and prompt you for approval. After you type `yes`, Terraform will begin destroying the components.
+
+### 2. Run the Finalizer Patch Script (Concurrent Execution)
+
+The script, `fetch-and-patch.sh`, handles scanning for active ArgoCD Applications in the `argocd` namespace and patching their finalizers so the resources can be deleted by Terraform.
+
+As soon as the Terraform destroy process starts deleting resources (after typing `yes`), immediately open a **new terminal window** and navigate to the root of the project (the `cloudride` folder).
+
+1.  Open a **new terminal window** and navigate to the root of the project:
+    ```bash
+    cd /path/to/cloudride-application-deployment/  # Example: Change this to your root folder
+    ```
+2.  Execute the script:
+    ```bash
+    ./fetch-and-patch.sh
+    ```
+
+> **Note:** The script must be run *after* the `terraform destroy` command has started the deletion process, and it must finish its execution successfully while the destroy is still running.
+
+### 3. Terraform Completion
+
+Once the script has patched the finalizers and Terraform is able to remove the ArgoCD components, the entire cluster deletion will proceed smoothly until all AWS resources are successfully destroyed.
 
 ---
 
