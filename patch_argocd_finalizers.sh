@@ -10,6 +10,7 @@ PATCH_PAYLOAD='{"metadata":{"finalizers":[]}}'
 APPLICATIONS=(
     "app-of-apps"
     "aws-load-balancer-controller"
+    "cert-manager"
     "eck-operator"
     "eck-stack"
     "filebeat-eck"
