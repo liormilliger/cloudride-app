@@ -76,7 +76,7 @@ data "tls_certificate" "eks_cluster_cert" {
 resource "aws_iam_policy" "alb_controller_policy" {
   name        = "${var.cluster_name}-alb-controller-policy"
   description = "Permissions for AWS Load Balancer Controller"
-  policy      = file("${path.module}/policies/iam-policy.json")
+  policy      = file("${path.module}/policies/alb-policy.json")
 }
 
 resource "aws_iam_role" "alb_controller_iam_role" {

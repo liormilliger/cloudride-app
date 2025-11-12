@@ -8,11 +8,6 @@ variable argocd-private-key {
   type = string
 }
 
-# variable "RDS_SECRET_NAME" {
-#   description = "credentials for RDS"
-#   type = string
-# }
-
 variable "eso_irsa_role_arn" {
   description = "The ARN of the IAM role for the External Secrets Operator service account."
   type        = string

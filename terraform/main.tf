@@ -27,6 +27,22 @@ module "eks" {
 
 }
 
+module "argocd" {
+  source                 = "./argocd"
+  config_repo_url         = var.config_repo_url
+  argocd-private-key = var.argocd-private-key
+  # RDS_SECRET_NAME = var.RDS_SECRET_NAME
+  eso_irsa_role_arn = module.eks.eso_irsa_role_arn 
+  providers = {
+    kubernetes = kubernetes.eks
+    helm       = helm.eks
+  }
+
+  depends_on = [
+    module.eks
+  ]
+}
+
 # module "rds" {
 #   source = "./rds"
 
@@ -57,22 +73,6 @@ module "eks" {
 #     db_password   = module.eks.db_password 
 #   })
 # }
-
-module "argocd" {
-  source                 = "./argocd"
-  config_repo_url         = var.config_repo_url
-  argocd-private-key = var.argocd-private-key
-  # RDS_SECRET_NAME = var.RDS_SECRET_NAME
-  eso_irsa_role_arn = module.eks.eso_irsa_role_arn 
-  providers = {
-    kubernetes = kubernetes.eks
-    helm       = helm.eks
-  }
-
-  depends_on = [
-    module.eks
-  ]
-}
 
 
 
